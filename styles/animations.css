@@ -1,0 +1,95 @@
+/* Enter/exit animation presets. Every transform includes
+   var(--ds-base-transform) so centered cues (translateX(-50%)) keep their
+   anchor while animating. Class names are referenced from
+   src/content/style-engine.js ANIMATION_PRESETS. */
+
+/* ---- pop ---- */
+@keyframes ds-pop-in {
+  0%   { transform: var(--ds-base-transform) scale(0.3); opacity: 0; }
+  60%  { transform: var(--ds-base-transform) scale(1.15); opacity: 1; }
+  100% { transform: var(--ds-base-transform) scale(1); opacity: 1; }
+}
+@keyframes ds-pop-out {
+  0%   { transform: var(--ds-base-transform) scale(1); opacity: 1; }
+  100% { transform: var(--ds-base-transform) scale(0.3); opacity: 0; }
+}
+.anim-enter-pop { animation: ds-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.anim-exit-pop  { animation: ds-pop-out 0.18s ease-in forwards; }
+
+/* ---- slide ---- */
+@keyframes ds-slide-in {
+  0%   { transform: var(--ds-base-transform) translateX(-60vw); opacity: 0; }
+  100% { transform: var(--ds-base-transform) translateX(0); opacity: 1; }
+}
+@keyframes ds-slide-out {
+  0%   { transform: var(--ds-base-transform) translateX(0); opacity: 1; }
+  100% { transform: var(--ds-base-transform) translateX(60vw); opacity: 0; }
+}
+.anim-enter-slide { animation: ds-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-exit-slide  { animation: ds-slide-out 0.2s ease-in forwards; }
+
+/* ---- bounce ---- */
+@keyframes ds-bounce-in {
+  0%   { transform: var(--ds-base-transform) translateY(-40vh); opacity: 0; }
+  55%  { transform: var(--ds-base-transform) translateY(0); opacity: 1; }
+  72%  { transform: var(--ds-base-transform) translateY(-4%); }
+  86%  { transform: var(--ds-base-transform) translateY(0); }
+  94%  { transform: var(--ds-base-transform) translateY(-1.5%); }
+  100% { transform: var(--ds-base-transform) translateY(0); opacity: 1; }
+}
+@keyframes ds-bounce-out {
+  0%   { transform: var(--ds-base-transform) translateY(0); opacity: 1; }
+  25%  { transform: var(--ds-base-transform) translateY(-6%); }
+  100% { transform: var(--ds-base-transform) translateY(40vh); opacity: 0; }
+}
+.anim-enter-bounce { animation: ds-bounce-in 0.45s ease-out forwards; }
+.anim-exit-bounce  { animation: ds-bounce-out 0.22s ease-in forwards; }
+
+/* ---- glitch ---- */
+@keyframes ds-glitch-in {
+  0%   { transform: var(--ds-base-transform) translate(-6px, 3px) skewX(8deg); opacity: 0; clip-path: inset(20% 0 55% 0); }
+  20%  { transform: var(--ds-base-transform) translate(5px, -2px) skewX(-6deg); opacity: 1; clip-path: inset(60% 0 5% 0); }
+  40%  { transform: var(--ds-base-transform) translate(-4px, 1px) skewX(4deg); clip-path: inset(0 0 70% 0); }
+  60%  { transform: var(--ds-base-transform) translate(3px, -1px) skewX(-3deg); clip-path: inset(45% 0 20% 0); }
+  80%  { transform: var(--ds-base-transform) translate(-1px, 0) skewX(1deg); clip-path: inset(0 0 0 0); }
+  100% { transform: var(--ds-base-transform) translate(0, 0) skewX(0); opacity: 1; clip-path: inset(0 0 0 0); }
+}
+@keyframes ds-glitch-out {
+  0%   { transform: var(--ds-base-transform) translate(0, 0); opacity: 1; clip-path: inset(0 0 0 0); }
+  30%  { transform: var(--ds-base-transform) translate(5px, -2px) skewX(-6deg); clip-path: inset(50% 0 10% 0); }
+  60%  { transform: var(--ds-base-transform) translate(-6px, 3px) skewX(8deg); clip-path: inset(10% 0 60% 0); }
+  100% { transform: var(--ds-base-transform) translate(4px, 0) skewX(-4deg); opacity: 0; clip-path: inset(40% 0 40% 0); }
+}
+.anim-enter-glitch { animation: ds-glitch-in 0.3s steps(6, end) forwards; }
+.anim-exit-glitch  { animation: ds-glitch-out 0.18s steps(5, end) forwards; }
+
+/* ---- continuous "hold" effects (applied to .ds-inner, which is separate
+   from the enter/exit-animated outer element, so transforms don't clash) ---- */
+@keyframes ds-hold-shake {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  20%  { transform: translate(-1px, 0.5px) rotate(-0.25deg); }
+  40%  { transform: translate(1px, -0.5px) rotate(0.25deg); }
+  60%  { transform: translate(-1px, -0.5px) rotate(-0.15deg); }
+  80%  { transform: translate(1px, 0.5px) rotate(0.15deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.ds-hold-shake { animation: ds-hold-shake 0.4s linear infinite; }
+
+@keyframes ds-hold-float {
+  0%   { transform: translateY(0) rotate(-1deg); }
+  50%  { transform: translateY(-6px) rotate(1deg); }
+  100% { transform: translateY(0) rotate(-1deg); }
+}
+.ds-hold-float { animation: ds-hold-float 2.2s ease-in-out infinite; }
+
+/* ---- fade ---- */
+@keyframes ds-fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes ds-fade-out {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+.anim-enter-fade { animation: ds-fade-in 0.3s ease-out forwards; }
+.anim-exit-fade  { animation: ds-fade-out 0.2s ease-in forwards; }

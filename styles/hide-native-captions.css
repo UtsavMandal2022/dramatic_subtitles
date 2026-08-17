@@ -1,0 +1,9 @@
+/* Hides Netflix's native caption box while the extension is active.
+   Gated on html.dramatic-subs-active (toggled by native-caption-hider.js).
+   visibility (not display) so Netflix's own layout logic is undisturbed.
+
+   NOTE: the `.player-timedtext` selector must stay in sync with
+   timedtextContainerSelectors in src/content/netflix-selectors.js. */
+html.dramatic-subs-active .player-timedtext {
+  visibility: hidden !important;
+}

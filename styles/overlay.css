@@ -1,0 +1,115 @@
+/* Bundled OFL fonts (see fonts/FONTS.md). Relative url() in content-script
+   CSS resolves to chrome-extension:// paths; the files are listed under
+   web_accessible_resources in manifest.json so the page may load them. */
+@font-face {
+  font-family: 'DS Anton';
+  src: url('../fonts/anton.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DS Bangers';
+  src: url('../fonts/bangers.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DS Permanent Marker';
+  src: url('../fonts/permanent-marker.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DS Playfair Display';
+  src: url('../fonts/playfair-display-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DS Special Elite';
+  src: url('../fonts/special-elite.woff2') format('woff2');
+  font-display: swap;
+}
+
+#dramatic-subs-overlay-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483000;
+  overflow: hidden;
+}
+
+/* When parented inside the player root (a positioned element), cover it
+   rather than the viewport. */
+.watch-video #dramatic-subs-overlay-root,
+[data-uia='player'] #dramatic-subs-overlay-root,
+*:fullscreen #dramatic-subs-overlay-root {
+  position: absolute;
+}
+
+.dramatic-subs-cue {
+  --ds-base-transform: none;
+  position: absolute;
+  max-width: 80%;
+  overflow-wrap: break-word;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  white-space: pre-wrap;
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.9),
+    0 2px 4px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(0, 0, 0, 0.6);
+  transform: var(--ds-base-transform);
+  will-change: transform, opacity;
+}
+
+.dramatic-subs-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  max-height: 80%;
+  max-width: none;
+}
+
+/* Inner wrapper carries continuous "hold" effects (shake/float) so their
+   transform doesn't fight the enter/exit animation on the outer element. */
+.ds-inner {
+  display: inline-block;
+}
+
+/* Karaoke mode: each word is its own span with a staggered animation-delay
+   (set inline). fill-mode `both` keeps words invisible until their delayed
+   entrance starts (the enter classes ship with `forwards` only).
+   --ds-base-transform must be reset here: it inherits from the outer cue
+   element (where it centers the whole line), and without the reset each
+   word's enter keyframes would apply translateX(-50%) to the word itself,
+   stacking words on top of each other. */
+.ds-word {
+  --ds-base-transform: none;
+  display: inline-block;
+  white-space: pre;
+  animation-fill-mode: both !important;
+}
+
+/* Scatter mode: the cue element covers the whole player and each word is
+   its own absolutely-positioned mini-cue in a distinct zone. */
+.dramatic-subs-scatter {
+  inset: 0;
+  max-width: none;
+}
+
+.ds-scatter-word {
+  position: absolute;
+  max-width: 45%;
+  overflow-wrap: break-word;
+  /* Invisible until its delayed entrance starts (enter classes only ship
+     `forwards`), same trick as .ds-word. */
+  animation-fill-mode: both !important;
+  transform: var(--ds-base-transform);
+}
+
+/* While the video is paused, freeze every overlay animation (shake/float
+   holds, karaoke word entrances, enter/exit) exactly where it is. */
+#dramatic-subs-overlay-root.ds-paused .dramatic-subs-cue,
+#dramatic-subs-overlay-root.ds-paused .ds-inner,
+#dramatic-subs-overlay-root.ds-paused .ds-word,
+#dramatic-subs-overlay-root.ds-paused .ds-scatter-word {
+  animation-play-state: paused !important;
+}
