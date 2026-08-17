@@ -6,8 +6,9 @@ Big subtitle blocks hide the scene. Dramatic Subtitles scatters the words around
 
 > A Chrome extension (Manifest V3), built entirely in vanilla JS/CSS — no bundler, no backend, no tracking, no network calls at runtime.
 
-<!-- TODO: drop your demo GIF/clip here before posting -->
-<!-- ![demo](docs/demo.gif) -->
+![demo — The Mentalist with Dramatic Subtitles](docs/demo.gif)
+
+*▶ [Full-quality video](docs/demo.mp4)*
 
 ## What it does
 
