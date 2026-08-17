@@ -23,12 +23,31 @@
     return null;
   }
 
+  // Netflix can have MORE THAN ONE caption container in the DOM at once
+  // (e.g. it may spin up a fresh one on player-mode changes like fullscreen
+  // while the old one lingers, empty). Callers that track cues must watch
+  // all of them, not just the first.
+  function findAll(selectors, label) {
+    for (const sel of selectors) {
+      try {
+        const els = document.querySelectorAll(sel);
+        if (els.length) return Array.from(els);
+      } catch (_) {
+        // invalid selector string — skip
+      }
+    }
+    NS.debugLog(`selector miss: no match for ${label}`, selectors);
+    return [];
+  }
+
   NS.selectors = {
     timedtextContainerSelectors,
     timedtextLineSelectors,
     playerRootSelectors,
     findTimedtextContainer: () =>
       findFirst(timedtextContainerSelectors, 'timedtext container'),
+    findAllTimedtextContainers: () =>
+      findAll(timedtextContainerSelectors, 'timedtext containers'),
     findPlayerRoot: () => findFirst(playerRootSelectors, 'player root'),
   };
 })();

@@ -36,13 +36,14 @@
   overflow: hidden;
 }
 
-/* When parented inside the player root (a positioned element), cover it
-   rather than the viewport. */
-.watch-video #dramatic-subs-overlay-root,
-[data-uia='player'] #dramatic-subs-overlay-root,
-*:fullscreen #dramatic-subs-overlay-root {
-  position: absolute;
-}
+/* The root stays position:fixed everywhere — on a Netflix watch page the
+   video fills the viewport, so fixed inset:0 IS the player area, in both
+   windowed and fullscreen (fixed positioning inside a fullscreened subtree
+   resolves against the viewport, which the fullscreen element covers).
+   Do NOT switch to position:absolute inside Netflix's containers: their
+   positioning/height isn't ours to rely on, and a short or top-anchored
+   ancestor box compresses every percentage zone toward the top of the
+   screen. */
 
 .dramatic-subs-cue {
   --ds-base-transform: none;

@@ -23,17 +23,29 @@
   let fontsWarmed = false;
 
   function ensureRoot() {
-    if (root && root.isConnected) return root;
-    root = document.getElementById(C.OVERLAY_ROOT_ID);
-    if (!root) {
-      root = document.createElement('div');
-      root.id = C.OVERLAY_ROOT_ID;
+    if (!root || !root.isConnected) {
+      root = document.getElementById(C.OVERLAY_ROOT_ID);
+      if (!root) {
+        root = document.createElement('div');
+        root.id = C.OVERLAY_ROOT_ID;
+      }
     }
-    const parent =
-      document.fullscreenElement ||
-      NS.selectors.findPlayerRoot() ||
-      document.body;
-    if (root.parentElement !== parent) parent.appendChild(root);
+    // The root lives as a direct child of document.body (position:fixed =
+    // viewport = the player area on a watch page), hopping into the
+    // fullscreen element only while fullscreen is active — a fixed-position
+    // descendant there still resolves against the viewport, but it must be
+    // INSIDE the fullscreened subtree to render at all. Never parent into
+    // Netflix's own player containers: their box geometry isn't ours to rely
+    // on, and percentage zones compress into whatever box they happen to
+    // have. On fullscreen exit, return to the direct body child (a bare
+    // contains() check would leave the root stranded inside Netflix's
+    // player element, whose ancestors we don't control).
+    const fs = document.fullscreenElement;
+    if (fs) {
+      if (!fs.contains(root)) fs.appendChild(root);
+    } else if (root.parentElement !== document.body) {
+      document.body.appendChild(root);
+    }
     return root;
   }
 
@@ -56,21 +68,40 @@
   }
 
   // Post-insertion safety clamp: shrink font / pull back inside the player
-  // bounds if the rendered box clips (mainly long vertical lines).
+  // bounds if the rendered box clips (mainly long vertical lines, or
+  // multi-line wraps of long bottom-zone cues).
+  //
+  // Measured with offset* geometry (layout box), NOT getBoundingClientRect —
+  // the entrance animation's keyframe transform (e.g. pop-in's scale(0.3) at
+  // 0%) is still in flight the instant we insert the element, so a
+  // rect-based measurement here can catch it mid-animation and read a
+  // smaller-than-final size, letting an overflow slip through undetected.
+  // offset* ignores transforms entirely, so it always reflects the settled
+  // (untransformed) box regardless of animation timing.
   function clampIntoBounds(el, container) {
-    const bounds = container.getBoundingClientRect();
-    let box = el.getBoundingClientRect();
+    const boundsH = container.clientHeight;
+    const boundsW = container.clientWidth;
 
-    for (let i = 0; i < 4 && (box.height > bounds.height * 0.9 || box.width > bounds.width * 0.9); i++) {
+    for (
+      let i = 0;
+      i < 4 && (el.offsetHeight > boundsH * 0.9 || el.offsetWidth > boundsW * 0.9);
+      i++
+    ) {
       const size = parseFloat(el.style.fontSize);
       el.style.fontSize = Math.max(C.FONT_SIZE_MIN_PX, size * 0.8) + 'px';
-      box = el.getBoundingClientRect();
     }
 
-    if (box.bottom > bounds.bottom) {
-      el.style.top = `calc(${el.style.top} - ${box.bottom - bounds.bottom + 8}px)`;
+    // Bottom-anchored cues (style.bottom set) grow upward and can't overflow
+    // the bottom edge, so the pull-up correction only applies to top-anchored
+    // ones. If anything pokes past the TOP edge (tall vertical text), re-pin
+    // to the top — clearing `bottom` first, since an element with both top
+    // and bottom set stretches instead of moving.
+    const bottom = el.offsetTop + el.offsetHeight;
+    if (el.style.top && bottom > boundsH) {
+      el.style.top = `calc(${el.style.top} - ${bottom - boundsH + 8}px)`;
     }
-    if (box.top < bounds.top) {
+    if (el.offsetTop < 0) {
+      el.style.bottom = 'auto';
       el.style.top = '5%';
     }
   }
@@ -121,6 +152,9 @@
           if (newTop + height > el.clientHeight) {
             newTop = Math.max(0, hit.top - height - MIN_GAP);
           }
+          // Clear any bottom anchor — top+bottom together would stretch the
+          // element instead of relocating it.
+          words[i].style.bottom = 'auto';
           words[i].style.top = newTop + 'px';
         }
       }
@@ -190,7 +224,8 @@
           const zone = style.scatterZones[i % style.scatterZones.length];
           const w = document.createElement('div');
           w.className = 'ds-scatter-word ' + style.animation.enterClass;
-          w.style.top = zone.top + '%';
+          if (zone.top != null) w.style.top = zone.top + '%';
+          if (zone.bottom != null) w.style.bottom = zone.bottom + '%';
           if (zone.left != null) w.style.left = zone.left + '%';
           if (zone.right != null) w.style.right = zone.right + '%';
           if (zone.centerX) {
@@ -208,7 +243,8 @@
         // stagger delay, so collisions can be fixed before anything shows.
         requestAnimationFrame(() => resolveScatterCollisions(el));
       } else {
-        el.style.top = style.position.top + '%';
+        if (style.position.top != null) el.style.top = style.position.top + '%';
+        if (style.position.bottom != null) el.style.bottom = style.position.bottom + '%';
         if (style.position.left != null) el.style.left = style.position.left + '%';
         if (style.position.right != null) el.style.right = style.position.right + '%';
         if (style.position.centerX) {

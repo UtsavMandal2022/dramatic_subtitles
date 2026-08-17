@@ -27,9 +27,12 @@
     { name: 'mid-left', top: 42, left: 8, verticalOk: true },
     { name: 'center', top: 42, left: 50, centerX: true, verticalOk: true },
     { name: 'mid-right', top: 42, right: 8, verticalOk: true },
-    { name: 'bottom-left', top: 68, left: 8, verticalOk: true },
-    { name: 'bottom-center', top: 68, left: 50, centerX: true, verticalOk: true },
-    { name: 'bottom-right', top: 68, right: 8, verticalOk: true },
+    // Bottom row anchors by the BOTTOM edge, not top — text sits genuinely
+    // low and grows upward, so the lower quarter of the frame actually gets
+    // used without any risk of spilling off-screen.
+    { name: 'bottom-left', bottom: 8, left: 8, verticalOk: true },
+    { name: 'bottom-center', bottom: 8, left: 50, centerX: true, verticalOk: true },
+    { name: 'bottom-right', bottom: 8, right: 8, verticalOk: true },
   ];
 
   // Class names defined in styles/animations.css. Enter/exit are matched
